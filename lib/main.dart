@@ -219,16 +219,40 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  // REVISI: KONFIRMASI LOG OUT (Kriteria Dosen: Dialog Konfirmasi)
   void _logout() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('isLoggedIn');
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-        (route) => false,
-      );
-    }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Konfirmasi Keluar"),
+        content: const Text("Apakah Anda yakin ingin keluar dari sistem?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () async {
+              final SharedPreferences prefs =
+                  await SharedPreferences.getInstance();
+              await prefs.remove('isLoggedIn');
+              if (mounted) {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text("Keluar"),
+          ),
+        ],
+      ),
+    );
   }
 
   void _openWhatsApp(String productName, String stock) async {
@@ -386,6 +410,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 final bool lowStock = prod['stock'] <= 5;
                 return Card(
                   child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(product: prod),
+                        ),
+                      );
+                    },
                     leading: CircleAvatar(
                       backgroundColor: lowStock
                           ? Colors.red.shade100
@@ -453,10 +485,109 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showForm(null),
         label: const Text("Tambah Produk"),
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.add_shopping_cart),
         backgroundColor: Colors.indigo,
         foregroundColor: Colors.white,
       ),
+    );
+  }
+}
+
+// 4. DETAIL SCREEN (Kriteria: Membawa Data Antar Layar - 10%)
+class DetailScreen extends StatelessWidget {
+  final Map<String, dynamic> product;
+  const DetailScreen({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          "Detail Produk",
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.indigo,
+        foregroundColor: Colors.white,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.indigo.shade50,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.inventory_2,
+                  size: 100,
+                  color: Colors.indigo,
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+            const Text(
+              "Informasi Barang:",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              product['name'],
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 40),
+            _buildInfoRow("Harga Satuan", "Rp ${product['price']}"),
+            const SizedBox(height: 15),
+            _buildInfoRow("Jumlah Stok", "${product['stock']} Unit"),
+            const SizedBox(height: 15),
+            _buildInfoRow(
+              "Status Inventaris",
+              product['stock'] <= 5 ? "STOK KRITIS" : "STOK AMAN",
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigo,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.arrow_back),
+                label: const Text("KEMBALI KE DASHBOARD"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, color: Colors.black54),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.indigo,
+          ),
+        ),
+      ],
     );
   }
 }
