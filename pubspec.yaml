@@ -1,0 +1,32 @@
+name: ropiqq
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.10.7 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  
+  # Library untuk database SQLite
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # Library untuk Session Login
+  shared_preferences: ^2.2.2
+  
+  # Library untuk fitur interaktif (WhatsApp & Maps)
+  url_launcher: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
